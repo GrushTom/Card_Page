@@ -13,9 +13,14 @@ import json  # 导入json模块
 here = os.path.dirname(os.path.abspath(__file__))
 os.chdir(here)
 
-# 设置静态文件目录为项目根目录
-static_dir = here
-print(f"将在项目根目录 {static_dir} 生成静态文件")
+# 设置静态文件目录为 dist 目录
+static_dir = os.path.join(here, 'dist')
+print(f"将在 dist 目录 {static_dir} 生成静态文件")
+
+# 确保 dist 目录存在
+if not os.path.exists(static_dir):
+    os.makedirs(static_dir)
+    print(f"已创建 dist 目录: {static_dir}")
 
 print("正在准备生成静态文件...")
 
@@ -64,7 +69,7 @@ try:
         response = client.get('/')
         
         if response.status_code == 200:
-            # 保存HTML内容到根目录
+            # 保存HTML内容到dist目录
             html_path = os.path.join(static_dir, 'index.html')
             
             # 确认是否已有index.html文件，如果有则备份
@@ -78,7 +83,7 @@ try:
             with open(html_path, 'wb') as f:
                 f.write(response.data)
             
-            print(f"静态HTML文件已保存到项目根目录: {html_path}")
+            print(f"静态HTML文件已保存到dist目录: {html_path}")
         else:
             print(f"错误：无法获取首页内容，状态码: {response.status_code}")
             sys.exit(1)
@@ -111,28 +116,48 @@ for file in [background_image]:  # 使用从配置中读取的背景图片文件
                 shutil.copy(dst, backup_path)
                 print(f"已备份现有资源文件到: {backup_path}")
             
-            # 检查是否为同一个文件
-            if not os.path.samefile(src, dst):
-                shutil.copy(src, dst)
-                print(f"已复制资源文件: {file}")
+            # 检查源文件是否存在
+            if os.path.exists(src):
+                # 检查是否为同一个文件（只有当目标文件存在时才需要检查）
+                if not os.path.exists(dst) or not os.path.samefile(src, dst):
+                    shutil.copy(src, dst)
+                    print(f"已复制资源文件到dist目录: {file}")
+                else:
+                    print(f"源文件和目标文件是同一个文件，跳过复制: {file}")
             else:
-                print(f"源文件和目标文件是同一个文件，跳过复制: {file}")
+                print(f"源文件不存在，跳过复制: {src}")
         except shutil.SameFileError:
             print(f"源文件和目标文件是同一个文件，跳过复制: {file}")
+        except Exception as e:
+            print(f"复制资源文件时出错: {e}")
 
 print("\n静态文件构建完成！")
-print(f"\n静态HTML文件已生成在项目根目录: {os.path.join(static_dir, 'index.html')}")
-print(f"\n如何部署到GitHub Pages:")
-print("方式一：自动部署（已配置GitHub Pages Actions）")
-print("1. 当您推送到main或master分支时，GitHub Actions会自动运行")
-print("2. GitHub Actions也会在每天UTC时间0点（北京时间8点）自动运行")
-print("3. 您也可以通过GitHub仓库的Actions页面手动触发运行")
-print("4. 构建产物会直接部署到GitHub Pages，无需额外配置GitHub Token")
-print("\n方式二：手动部署")
-print("1. 确保您已经在项目根目录")
-print("2. 直接将生成的index.html和background.jpg文件部署到您的Web服务器")
+print(f"\n静态HTML文件已生成在dist目录: {os.path.join(static_dir, 'index.html')}")
+print("\n如何部署:")
+print("\n方式一：部署到 Cloudflare Pages")
+print("1. 登录 Cloudflare 控制台，进入 Pages 部分")
+print("2. 创建一个新项目，连接到您的 GitHub/GitLab 仓库")
+print("3. 配置构建参数：")
+print("   - 构建命令：python build_static.py")
+print("   - 输出目录：dist")
+print("   - 构建环境：Python 3.9")
+print("4. 点击部署，等待构建完成")
+print("5. 访问生成的 URL 查看部署结果")
+
+print("\n方式二：部署到 GitHub Pages")
+print("1. 自动部署：当您推送到main或master分支时，GitHub Actions会自动运行")
+print("2. 手动部署：")
+print("   - 确保您已经在项目根目录")
+print("   - 将dist目录中的文件部署到您的Web服务器")
+
+print("\n方式三：部署到其他静态托管服务（Vercel、Netlify等）")
+print("1. 连接到您的 GitHub/GitLab 仓库")
+print("2. 配置构建参数：")
+print("   - 构建命令：python build_static.py")
+print("   - 输出目录：dist")
+print("3. 点击部署，等待构建完成")
+
 print("\n注意：")
-print("1. 使用GitHub Pages部署方式不需要配置GitHub Token")
-print("2. 部署不会在仓库中产生额外的提交记录")
-print("3. 确保GitHub仓库启用了GitHub Pages功能")
-print("4. 访问路径通常为 https://YOUR_USERNAME.github.io/YOUR_REPO/")
+print("1. 确保已安装所有依赖：pip install -r requirements.txt")
+print("2. 静态文件已生成在 dist 目录中")
+print("3. 访问路径取决于您使用的托管服务")
