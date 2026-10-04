@@ -260,6 +260,9 @@
                 <span class="font-bold text-lg">{{ github_info.name }}</span>
             </div>
             <div class="flex items-center space-x-4">
+                <button id="image-controls-toggle" type="button" aria-haspopup="dialog" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" title="图片控件">
+                    <i class="fa-solid fa-image" aria-hidden="true"></i><span class="sr-only">图片控件</span>
+                </button>
                 <!-- 极简模式开关 -->
                 <button id="minimal-mode-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors relative">
                     <span class="sr-only">切换极简模式</span>
@@ -608,5 +611,6 @@
             });
         });
     </script>
+    <script src="image-controls.js" defer></script>
 </body>
 </html>

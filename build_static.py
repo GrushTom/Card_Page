@@ -99,8 +99,8 @@ except Exception as e:
 
 # 复制其他必要的静态资源到根目录
 print("正在复制其他静态资源...")
-for file in [background_image]:  # 使用从配置中读取的背景图片文件名
-    src = os.path.join(here, 'static_build', file)
+for file in [background_image, 'image-controls.js']:  # 背景与图片控件资源
+    src = os.path.join(here, file) if file == 'image-controls.js' else os.path.join(here, 'static_build', file)
     if not os.path.exists(src):
         # 如果在static_build目录中找不到，则尝试在当前目录查找
         src = os.path.join(here, file)

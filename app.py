@@ -780,7 +780,7 @@ def generate_static_html():
         print(f"静态HTML文件已保存到: {html_path}")
         
         # 复制必要的静态资源
-        resources_to_copy = []
+        resources_to_copy = ['image-controls.js']
         # 检查是否有背景图片
         if 'background' in config and 'image' in config['background']:
             background_image = config['background']['image']
